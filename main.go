@@ -55,7 +55,7 @@ func run(ctx context.Context) (err error) {
 	}
 	defer term.Close()
 
-	b := NewBuffer()
+	b := newBuffer()
 
 	// launch our goroutines to handle the screen
 	var wg sync.WaitGroup
@@ -69,7 +69,7 @@ func run(ctx context.Context) (err error) {
 }
 
 // generateFrames runs the commands and appends the data into the buffer.
-func generateFrames(ctx context.Context, b *Buffer) {
+func generateFrames(ctx context.Context, b *buffer) {
 	args := flag.Args()
 
 	for {
@@ -91,7 +91,7 @@ func generateFrames(ctx context.Context, b *Buffer) {
 }
 
 // blitFrames watches the buffer and displays any changes to the screen.
-func blitFrames(ctx context.Context, b *Buffer) {
+func blitFrames(ctx context.Context, b *buffer) {
 	var (
 		data string
 		gen  int
@@ -129,7 +129,7 @@ func blitFrames(ctx context.Context, b *Buffer) {
 }
 
 // watchRedraw is responsible for signaling when the display may need to be redrawn.
-func watchRedraw(ctx context.Context, b *Buffer) {
+func watchRedraw(ctx context.Context, b *buffer) {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGWINCH)
 

@@ -5,19 +5,19 @@ import (
 	"sync"
 )
 
-type Buffer struct {
+type buffer struct {
 	cond *sync.Cond
 	data []byte
 	gen  int
 }
 
-func NewBuffer() *Buffer {
+func newBuffer() *buffer {
 	var mu sync.Mutex
-	return &Buffer{cond: sync.NewCond(&mu)}
+	return &buffer{cond: sync.NewCond(&mu)}
 }
 
 // Write makes buffer an io.Writer, appending into the data slice and signaling waiters.
-func (b *Buffer) Write(p []byte) (n int, err error) {
+func (b *buffer) Write(p []byte) (n int, err error) {
 	b.cond.L.Lock()
 	defer b.cond.L.Unlock()
 
@@ -29,7 +29,7 @@ func (b *Buffer) Write(p []byte) (n int, err error) {
 }
 
 // Clear resets the buffer, bumps the gen, and broadcasts.
-func (b *Buffer) Clear() {
+func (b *buffer) Clear() {
 	b.cond.L.Lock()
 	defer b.cond.L.Unlock()
 
@@ -40,7 +40,7 @@ func (b *Buffer) Clear() {
 
 // Wait will wait until the internal generation is > the passed in gen and return
 // a copy of the data and what generation it had.
-func (b *Buffer) Wait(ctx context.Context, gen int) (string, int, bool) {
+func (b *buffer) Wait(ctx context.Context, gen int) (string, int, bool) {
 	b.cond.L.Lock()
 	defer b.cond.L.Unlock()
 
@@ -54,7 +54,7 @@ func (b *Buffer) Wait(ctx context.Context, gen int) (string, int, bool) {
 }
 
 // Bump just increases the generation and broadcasts.
-func (b *Buffer) Bump() {
+func (b *buffer) Bump() {
 	b.cond.L.Lock()
 	defer b.cond.L.Unlock()
 
